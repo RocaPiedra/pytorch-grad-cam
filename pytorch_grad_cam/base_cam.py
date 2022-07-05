@@ -93,7 +93,7 @@ class BaseCAM:
         cam_per_layer = self.compute_cam_per_layer(input_tensor,
                                                    targets,
                                                    eigen_smooth)
-        return self.aggregate_multi_layers(cam_per_layer)
+        return self.aggregate_multi_layers(cam_per_layer), outputs
 
     def get_target_width_height(self,
                                 input_tensor: torch.Tensor) -> Tuple[int, int]:
@@ -153,7 +153,7 @@ class BaseCAM:
         cams = []
         for transform in transforms:
             augmented_tensor = transform.augment_image(input_tensor)
-            cam = self.forward(augmented_tensor,
+            cam, inference_output = self.forward(augmented_tensor,
                                targets,
                                eigen_smooth)
 
@@ -168,7 +168,7 @@ class BaseCAM:
             cams.append(cam)
 
         cam = np.mean(np.float32(cams), axis=0)
-        return cam
+        return cam, inference_output
 
     def __call__(self,
                  input_tensor: torch.Tensor,
